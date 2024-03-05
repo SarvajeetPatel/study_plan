@@ -11,7 +11,7 @@ function PlanForm() {
     const [title, setTitle] = useState('');
     const [selectedBook, setSelectedBook] = useState([]);
     const [chapters, setChapters] = useState([]);
-
+    const [options, setOptions] = useState([]);
     const [numberOfDayTime, setNumberOfDayTime] = useState(0);
     const [numberOfBooks, setNumberOfBooks] = useState(0);
     const [addBook, setAddBook] = useState([]);
@@ -19,27 +19,37 @@ function PlanForm() {
     const [allBooksData, setAllBooksData] = useState([]);
 
     const daysOfWeek = [
-        'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+        { 'id': 0, 'day': 'Sunday' },
+        { 'id': 1, 'day': 'Monday' },
+        { 'id': 2, 'day': 'Tuesday' },
+        { 'id': 3, 'day': 'Wednesday' },
+        { 'id': 4, 'day': 'Thursday' },
+        { 'id': 5, 'day': 'Friday' },
+        { 'id': 6, 'day': 'Saturday' },
     ]
-
-    let oneBook;
-    let chp = [];
 
     function handleChange(e) {
         setSelectedBook(
             [...selectedBook, e.target.value]
         )
+        const oneBook = allBooksData.filter(userBook => userBook.name === e.target.value)
+        const newChapters = oneBook[0].chapters
+
+        const chap = newChapters.map(ch => ch.name)
+        console.log(chap)
+        setOptions(chap)
     }
 
-    useEffect(() => {
-        oneBook = allBooksData.filter(userBook => userBook.name === selectedBook[selectedBook.length - 1])
-        const newChapters = oneBook.map(chap => chap.chapters)
+    console.log(options, "options", selectedBook, addTime)
+    // useEffect(() => {
+    //     oneBook = allBooksData.filter(userBook => userBook.name === selectedBook[selectedBook.length - 1])
+    //     const newChapters = oneBook.map(chap => chap.chapters)
 
-        const newArray = newChapters.map(ch => ch.map((chapp) => chapp.name))
-        chp = newArray[0];
+    //     const newArray = newChapters.map(ch => ch.map((chapp) => chapp.name))
+    //     chp = newArray[0];
 
-        console.log(oneBook, "the one book", selectedBook, "chapters", chp)
-    }, [selectedBook])
+    //     console.log(oneBook, "the one book", selectedBook, "chapters", chp)
+    // }, [selectedBook])
 
     useEffect(() => {
         setAllBooksData(BooksList);
@@ -52,10 +62,13 @@ function PlanForm() {
         setAddBook(addBook);
     }
 
-    function handleAddTime() {
+    function handleAddTime(e) {
+
+        console.log(e.target.value)
         setNumberOfDayTime(numberOfDayTime + 1);
-        addTime.push(numberOfDayTime)
-        setAddTime(addTime)
+        // addTime.push(e.target.value)
+
+        setAddTime(e.target.value)
     }
 
     function handleSubmit(e) {
@@ -104,10 +117,11 @@ function PlanForm() {
                                                 </select>
                                             </Col>
                                             <Col className='col-md-5'>
-                                                {chp &&
+                                                {selectedBook &&
                                                     <>
                                                         <Multiselect
-                                                            options={chp}
+                                                            options={options}
+                                                            defaultvalues={options}
                                                             isObject={false}
                                                             showCheckbox
                                                             showArrow
@@ -130,12 +144,21 @@ function PlanForm() {
                             <Row>
                                 <label className='textLabel'>Select Timings </label> <br />
                                 {
-                                    daysOfWeek.map((days, index) => (
-                                        <Col key={index}>
-                                            <Row className='weekdays'> {days} </Row>
-                                            
-                                            <Row className='weekdays'>
-                                                <button onClick={handleAddTime} value={numberOfDayTime} style={{ width: '100px' }}> +  </button>
+                                    daysOfWeek.map((days) => (
+
+                                        <Col key={days.id} value={days.id}>
+                                            <Row className='weekdays' value={days.id}> {days.day} </Row>
+                                            {
+                                                (addTime === days.id) ?
+                                                    <Row>
+                                                        <Col> <input type='text' placeholder='From Time' /> </Col>
+                                                        <Col> <input type='text' placeholder='To Time' /> </Col>
+                                                    </Row>
+                                                    : ""
+                                            }
+
+                                            <Row className='weekdays' value={numberOfDayTime}>
+                                                <Button onClick={handleAddTime} style={{ width: '100px' }} variant='secondary' value={days.id} > + </Button>
                                             </Row>
                                         </Col>
                                     ))
