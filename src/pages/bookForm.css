@@ -1,0 +1,52 @@
+.outerDiv {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.mainForm {
+    padding: 10px;
+    border: 1px solid gray;
+    width: 1000px;
+}
+
+.mainHeading {
+    color: rgb(97, 97, 97);
+    font-size: 25px;
+    font-weight: 600;
+}
+
+.textLabel{
+    color: gray;
+	font-weight: 600;
+	font-size: 19px;
+    line-height: 40px;
+    padding-top: 10px;
+}
+
+.textInput {
+    color: gray;
+	font-weight: 500;
+	font-size: 13px;
+    border-radius: 6px;
+	line-height: 18.4px;
+    height: 34px;
+    width: 200px;
+}
+
+.buttons {
+    font-weight: 500;
+    line-height: 18px;
+}
+
+.weekdays{
+    display: flex;
+    justify-content:center ;  
+    padding-top: 10px;
+}
+
+.buttonCss {
+    width: 200px;
+    margin-left: 20px;
+}
