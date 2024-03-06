@@ -15,17 +15,18 @@ function PlanForm() {
 
     const [title, setTitle] = useState('');
     const [selectedBook, setSelectedBook] = useState([]);
-    const [chapters, setChapters] = useState([]);
+    const [totalTime, setTotalTime] = useState([]);
     const [options, setOptions] = useState([]);
     const [numberOfDayTime, setNumberOfDayTime] = useState(0);
     const [numberOfBooks, setNumberOfBooks] = useState(0);
     const [addBook, setAddBook] = useState([]);
-    const [addTime, setAddTime] = useState([]);
+    // const [addTime, setAddTime] = useState([]);
     const [allBooksData, setAllBooksData] = useState([]);
     const [startDate, setStartDate] = useState(new Date());
-
-    const [startTime, setStartTime] = useState();
-    const [endTime, setEndTime] = useState();
+    // const [timeSelected, setTimeSelected] = useState([]);
+    const [startTime, setStartTime] = useState([]);
+    const [endTime, setEndTime] = useState([]);
+    const [words, setWords] = useState(0);
 
     const days = [
         "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
@@ -41,6 +42,7 @@ function PlanForm() {
         6: [],
     })
 
+    let sum = 0;
     function handleChange(e) {
         setSelectedBook(
             [...selectedBook, e.target.value]
@@ -48,12 +50,11 @@ function PlanForm() {
         const oneBook = allBooksData.filter(userBook => userBook.name === e.target.value)
         const newChapters = oneBook[0].chapters
 
+        newChapters.forEach((chData) => sum += chData.no_of_words)
+        setWords(sum + words);
         const chap = newChapters.map(ch => ch.name)
-        console.log(chap)
         setOptions(chap)
     }
-
-    console.log(options, "options", selectedBook, addTime)
 
     useEffect(() => {
         setAllBooksData(BooksList);
@@ -66,34 +67,74 @@ function PlanForm() {
         setAddBook(addBook);
     }
 
-    let totalTime = [];
-    function handleTimeStart(e) {
-        setStartTime(prev => ({
-            ...prev, [e.target.name]: e.target.value
-        }))
-        totalTime.push(e.target.value)
+    function handleTimeStart(time, i) {
+        setStartTime([time.$H, time.$m])
+
+        if (time.$H && time.$m && timingState[i][timingState[i].length - 1].length === 0) {
+            timingState[i][timingState[i].length - 1].push(time.$H, time.$m)
+            console.log(timingState, "first if");
+        }
+        else if (time.$H && time.$m && timingState[i][timingState[i].length - 1].length === 2) {
+            timingState[i][timingState[i].length - 1].splice(0, 2)
+            timingState[i][timingState[i].length - 1].push(time.$H, time.$m)
+            console.log(timingState, "second if");
+        }
+        else if (time.$H && time.$m && timingState[i][timingState[i].length - 1].length === 4) {
+            timingState[i][timingState[i].length - 1].splice(0, 4)
+            timingState[i][timingState[i].length - 1].push(time.$H, time.$m)
+            console.log(timingState, "second if");
+        }
     }
 
-    function handleTimeEnd(e) {
-        setEndTime(prev => ({
-            ...prev, [e.target.name]: e.target.value
-        }))
-        totalTime.push(e.target.value)
+    function handleTimeEnd(time, i) {
+        setEndTime([time.$H, time.$m])
+
+        if (time.$H && time.$m && timingState[i][timingState[i].length - 1].length === 2) {
+            timingState[i][timingState[i].length - 1].push(time.$H, time.$m)
+            console.log(timingState, "end 1st")
+        }
+        else if (time.$H && time.$m && timingState[i][timingState[i].length - 1].length === 4) {
+            timingState[i][timingState[i].length - 1].splice(2, 2)
+            timingState[i][timingState[i].length - 1].push(time.$H, time.$m)
+            console.log(timingState, "end 2nd")
+        }
     }
+
+    console.log(startTime, endTime);
+    useEffect(() => {
+        const hours = words / 50;
+        if (words % 50 !== 0) {
+            hours += 1;
+        }
+
+        var finalHours = startTime[1] - endTime[1] - 1;
+        var minutes = startTime[1] + (60 - endTime[1]);
+
+        if (minutes >= 60) {
+            finalHours++;
+            minutes = minutes - 60;
+        }
+
+        console.log(finalHours, ":", minutes)
+    }, [endTime])
 
     function handleAddTime(dayIndex) {
+
+        console.log(totalTime, "total time")
         setTimingState(prevState => ({
             ...prevState,
             [dayIndex]: [...prevState[dayIndex], totalTime]
         }));
         setNumberOfDayTime(numberOfDayTime + 1);
     }
-    console.log(startTime, "time")
 
     function handleSubmit(e) {
         e.preventDefault();
 
         const isValid = ValidateForm();
+        if (isValid) {
+            localStorage.setItem("data", JSON.stringify());
+        }
     }
 
     function ValidateForm() {
@@ -159,29 +200,9 @@ function PlanForm() {
                                 <Button onClick={handleBookAdd} variant='secondary' value={numberOfBooks} className='buttonCss'> Add A Book </Button>
                             </Row>
 
-
                             <Row>
                                 <label className='textLabel'>Select Timings </label> <br />
                                 {
-                                    // days.map((days, index) => (
-
-                                    //     <Col key={index}>
-                                    //         <Row className='weekdays'> {days} </Row>
-                                    //         {
-                                    //             (addTime === days) ?
-                                    //                 <Row>
-                                    //                     <Col> <input type='text' placeholder='From Time' /> </Col>
-                                    //                     <Col> <input type='text' placeholder='To Time' /> </Col>
-                                    //                 </Row>
-                                    //                 : ""
-                                    //         }
-
-                                    //         <Row className='weekdays' value={numberOfDayTime}>
-                                    //             <Button onClick={handleAddTime} style={{ width: '100px' }} variant='secondary' value={index}> + </Button>
-                                    //         </Row>
-                                    //     </Col>
-                                    // ))
-
                                     days.map((day, index) => (
                                         <Col key={index}>
                                             <Row>{day}</Row>
@@ -190,23 +211,19 @@ function PlanForm() {
                                                 <>
                                                     <Row key={i}>
                                                         <Col>
-                                                            {/* <select placeholder='From Time' value={startTime} > */}
                                                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                                 <DemoContainer components={['TimePicker']}>
-                                                                    <TimePicker label="From Time" minutesStep={15} onChange={(time) => setStartTime(time)}/>
+                                                                    <TimePicker label="From Time" minutesStep={15} onChange={(time) => handleTimeStart(time, index)} />
                                                                 </DemoContainer>
                                                             </LocalizationProvider>
-                                                            {/* </select>  */}
                                                         </Col>
-                                                        <Col> 
-                                                        {/* <select placeholder='To Time' value={endTime} onChange={handleTimeEnd}> */}
+                                                        <Col>
                                                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                                 <DemoContainer components={['TimePicker']}>
-                                                                    <TimePicker label="From Time" minutesStep={15} />
+                                                                    <TimePicker label="To Time" minutesStep={15} onChange={(time) => handleTimeEnd(time, index)} />
                                                                 </DemoContainer>
                                                             </LocalizationProvider>
-                                                        {/* </select> */}
-                                                         </Col>
+                                                        </Col>
                                                     </Row>
                                                     <br />
                                                 </>
