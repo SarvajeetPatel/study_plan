@@ -4,7 +4,12 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import './bookForm.css'
 import BooksList from '../components/booksList.js'
 import Multiselect from 'multiselect-react-dropdown';
-
+import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from "react-datepicker";
+import { TimePicker } from '@mui/x-date-pickers'
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 function PlanForm() {
 
@@ -17,16 +22,24 @@ function PlanForm() {
     const [addBook, setAddBook] = useState([]);
     const [addTime, setAddTime] = useState([]);
     const [allBooksData, setAllBooksData] = useState([]);
+    const [startDate, setStartDate] = useState(new Date());
 
-    const daysOfWeek = [
-        { 'id': 0, 'day': 'Sunday' },
-        { 'id': 1, 'day': 'Monday' },
-        { 'id': 2, 'day': 'Tuesday' },
-        { 'id': 3, 'day': 'Wednesday' },
-        { 'id': 4, 'day': 'Thursday' },
-        { 'id': 5, 'day': 'Friday' },
-        { 'id': 6, 'day': 'Saturday' },
+    const [startTime, setStartTime] = useState();
+    const [endTime, setEndTime] = useState();
+
+    const days = [
+        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
     ]
+
+    const [timingState, setTimingState] = useState({
+        0: [],
+        1: [],
+        2: [],
+        3: [],
+        4: [],
+        5: [],
+        6: [],
+    })
 
     function handleChange(e) {
         setSelectedBook(
@@ -41,15 +54,6 @@ function PlanForm() {
     }
 
     console.log(options, "options", selectedBook, addTime)
-    // useEffect(() => {
-    //     oneBook = allBooksData.filter(userBook => userBook.name === selectedBook[selectedBook.length - 1])
-    //     const newChapters = oneBook.map(chap => chap.chapters)
-
-    //     const newArray = newChapters.map(ch => ch.map((chapp) => chapp.name))
-    //     chp = newArray[0];
-
-    //     console.log(oneBook, "the one book", selectedBook, "chapters", chp)
-    // }, [selectedBook])
 
     useEffect(() => {
         setAllBooksData(BooksList);
@@ -62,14 +66,29 @@ function PlanForm() {
         setAddBook(addBook);
     }
 
-    function handleAddTime(e) {
-
-        console.log(e.target.value)
-        setNumberOfDayTime(numberOfDayTime + 1);
-        // addTime.push(e.target.value)
-
-        setAddTime(e.target.value)
+    let totalTime = [];
+    function handleTimeStart(e) {
+        setStartTime(prev => ({
+            ...prev, [e.target.name]: e.target.value
+        }))
+        totalTime.push(e.target.value)
     }
+
+    function handleTimeEnd(e) {
+        setEndTime(prev => ({
+            ...prev, [e.target.name]: e.target.value
+        }))
+        totalTime.push(e.target.value)
+    }
+
+    function handleAddTime(dayIndex) {
+        setTimingState(prevState => ({
+            ...prevState,
+            [dayIndex]: [...prevState[dayIndex], totalTime]
+        }));
+        setNumberOfDayTime(numberOfDayTime + 1);
+    }
+    console.log(startTime, "time")
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -144,25 +163,72 @@ function PlanForm() {
                             <Row>
                                 <label className='textLabel'>Select Timings </label> <br />
                                 {
-                                    daysOfWeek.map((days) => (
+                                    // days.map((days, index) => (
 
-                                        <Col key={days.id} value={days.id}>
-                                            <Row className='weekdays' value={days.id}> {days.day} </Row>
-                                            {
-                                                (addTime === days.id) ?
-                                                    <Row>
-                                                        <Col> <input type='text' placeholder='From Time' /> </Col>
-                                                        <Col> <input type='text' placeholder='To Time' /> </Col>
+                                    //     <Col key={index}>
+                                    //         <Row className='weekdays'> {days} </Row>
+                                    //         {
+                                    //             (addTime === days) ?
+                                    //                 <Row>
+                                    //                     <Col> <input type='text' placeholder='From Time' /> </Col>
+                                    //                     <Col> <input type='text' placeholder='To Time' /> </Col>
+                                    //                 </Row>
+                                    //                 : ""
+                                    //         }
+
+                                    //         <Row className='weekdays' value={numberOfDayTime}>
+                                    //             <Button onClick={handleAddTime} style={{ width: '100px' }} variant='secondary' value={index}> + </Button>
+                                    //         </Row>
+                                    //     </Col>
+                                    // ))
+
+                                    days.map((day, index) => (
+                                        <Col key={index}>
+                                            <Row>{day}</Row>
+
+                                            {timingState[index].map((field, i) => (
+                                                <>
+                                                    <Row key={i}>
+                                                        <Col>
+                                                            {/* <select placeholder='From Time' value={startTime} > */}
+                                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                                <DemoContainer components={['TimePicker']}>
+                                                                    <TimePicker label="From Time" minutesStep={15} onChange={(time) => setStartTime(time)}/>
+                                                                </DemoContainer>
+                                                            </LocalizationProvider>
+                                                            {/* </select>  */}
+                                                        </Col>
+                                                        <Col> 
+                                                        {/* <select placeholder='To Time' value={endTime} onChange={handleTimeEnd}> */}
+                                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                                <DemoContainer components={['TimePicker']}>
+                                                                    <TimePicker label="From Time" minutesStep={15} />
+                                                                </DemoContainer>
+                                                            </LocalizationProvider>
+                                                        {/* </select> */}
+                                                         </Col>
                                                     </Row>
-                                                    : ""
-                                            }
+                                                    <br />
+                                                </>
+                                            ))}
 
-                                            <Row className='weekdays' value={numberOfDayTime}>
-                                                <Button onClick={handleAddTime} style={{ width: '100px' }} variant='secondary' value={days.id} > + </Button>
+                                            <Row>
+                                                <Button onClick={() => handleAddTime(index)} variant='secondary' className='buttonNew'> + </Button>
                                             </Row>
                                         </Col>
                                     ))
                                 }
+                            </Row>
+
+                            <Row>
+                                <label className='textLabel'> Duration </label> <br />
+                            </Row>
+                            <Row>
+                                <Col className='col-md-2'>Start Date</Col>
+                                <Col> <DatePicker selected={startDate} onChange={(date) => setStartDate(date)} minDate={new Date()} /> </Col>
+                                <Col></Col>
+                                <Col className='col-md-2'>End Date </Col>
+                                <Col><div className='endTime'>Time</div></Col>
                             </Row>
 
                         </form>

@@ -8,7 +8,8 @@
 .mainForm {
     padding: 10px;
     border: 1px solid gray;
-    width: 1000px;
+    display: flex;
+    width: 100%;
 }
 
 .mainHeading {
@@ -49,4 +50,14 @@
 .buttonCss {
     width: 200px;
     margin-left: 20px;
+}
+
+.buttonNew {
+    width: 150px;
+    /* margin-left: 20px; */
+}
+
+.endTime {
+    border: 1px solid black;
+    height: 30px;
 }
